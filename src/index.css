@@ -2171,3 +2171,31 @@ input, textarea, button {
   color: var(--teal-700);
   flex-shrink: 0;
 }
+
+/* ══════════════════════════════════════════════════════════
+   Follow / Following button (in chat list rows)
+   ══════════════════════════════════════════════════════════ */
+.follow-btn {
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--teal-700);
+  background: var(--teal-700);
+  color: #fff;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), border-color var(--transition);
+  margin-left: 8px;
+}
+
+.follow-btn.following {
+  background: transparent;
+  color: var(--teal-700);
+  border-color: var(--border);
+}
+
+.follow-btn.following:hover {
+  border-color: var(--error);
+  color: var(--error);
+}

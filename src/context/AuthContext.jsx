@@ -21,6 +21,7 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [myFollowing, setMyFollowing] = useState({});
 
   // Register — username is the public identity; email is required internally for Firebase Auth + OTP
   async function register(username, email, password, avatarFile) {
@@ -193,6 +194,23 @@ export function AuthProvider({ children }) {
     return !!userProfile?.blocked?.[targetUid];
   }
 
+  // ── Follow / Unfollow a user ─────────────────────────────
+  // Structure: follows/{myUid}/{targetUid} = true
+  // Instagram-style — one-directional, no mutual approval needed.
+  async function followUser(targetUid) {
+    if (!currentUser) return;
+    await set(ref(db, `follows/${currentUser.uid}/${targetUid}`), true);
+  }
+
+  async function unfollowUser(targetUid) {
+    if (!currentUser) return;
+    await remove(ref(db, `follows/${currentUser.uid}/${targetUid}`));
+  }
+
+  function isFollowing(targetUid) {
+    return !!myFollowing[targetUid];
+  }
+
   // ── Notification preference ──────────────────────────────
   async function setNotificationsEnabled(enabled) {
     if (!currentUser) return;
@@ -232,12 +250,18 @@ export function AuthProvider({ children }) {
           setUserProfile(snapshot.val());
         });
 
+        const followsRef = ref(db, `follows/${user.uid}`);
+        onValue(followsRef, (snapshot) => {
+          setMyFollowing(snapshot.val() || {});
+        });
+
         await update(ref(db, `users/${user.uid}`), {
           online: true,
           lastSeen: Date.now(),
         });
       } else {
         setUserProfile(null);
+        setMyFollowing({});
       }
 
       setLoading(false);
@@ -267,6 +291,10 @@ export function AuthProvider({ children }) {
     blockUser,
     unblockUser,
     isBlocked,
+    followUser,
+    unfollowUser,
+    isFollowing,
+    myFollowing,
     setNotificationsEnabled,
     markAllAsRead,
     clearAllChatHistory,

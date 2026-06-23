@@ -32,7 +32,7 @@ function AvatarFallback({ name, size = 46 }) {
 }
 
 export default function Sidebar({ selectedUser, onSelectUser, isMobileVisible }) {
-  const { currentUser, userProfile, markAllAsRead } = useAuth();
+  const { currentUser, userProfile, markAllAsRead, followUser, unfollowUser, isFollowing, myFollowing } = useAuth();
   const navigate = useNavigate();
   const { users, loading } = useUsers();
   const lastMessages = useLastMessages(users);
@@ -73,16 +73,38 @@ export default function Sidebar({ selectedUser, onSelectUser, isMobileVisible })
     }
   }
 
+  const isSearching = search.trim().length > 0;
+
   const filtered = users.filter(u =>
     u.username?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Chat list (no search) only shows people I follow
+  const followedUsers = users.filter(u => isFollowing(u.uid));
+
+  const baseList = isSearching ? filtered : followedUsers;
+
   // Sort: users with recent messages first
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = [...baseList].sort((a, b) => {
     const ta = lastMessages[a.uid]?.timestamp || 0;
     const tb = lastMessages[b.uid]?.timestamp || 0;
     return tb - ta;
   });
+
+  async function handleFollowToggle(e, targetUid, username) {
+    e.stopPropagation(); // don't trigger chat open when tapping the follow button
+    try {
+      if (isFollowing(targetUid)) {
+        await unfollowUser(targetUid);
+        toast.success(`Unfollowed ${username}`);
+      } else {
+        await followUser(targetUid);
+        toast.success(`Following ${username}`);
+      }
+    } catch {
+      toast.error('Action failed. Try again.');
+    }
+  }
 
   const myPhoto = userProfile?.photoURL || currentUser?.photoURL;
   const myName = userProfile?.username || currentUser?.displayName || 'Me';
@@ -149,26 +171,31 @@ export default function Sidebar({ selectedUser, onSelectUser, isMobileVisible })
 
           {!loading && sorted.length === 0 && (
             <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--text-muted)', fontSize: 14 }}>
-              {search
+              {isSearching
                 ? <>No one found with that username.<br/>Ask them to register on VartaLap first.</>
-                : 'No contacts yet. Search by username above to find someone.'}
+                : <>You're not following anyone yet.<br/>Search by username above to find someone.</>}
             </div>
           )}
 
-          {!loading && search.trim() && sorted.length > 0 && (
+          {!loading && isSearching && sorted.length > 0 && (
             <div className="search-result-hint">
-              Tap a result below to start chatting
+              Follow someone to start chatting with them
             </div>
           )}
 
           {sorted.map(user => {
             const lastMsg = lastMessages[user.uid];
             const isActive = selectedUser?.uid === user.uid;
+            const following = isFollowing(user.uid);
             return (
               <div
                 key={user.uid}
                 className={`chat-item ${isActive ? 'active' : ''}`}
-                onClick={() => { onSelectUser(user); setSearch(''); }}
+                onClick={() => {
+                  if (!following) return; // must follow before opening a chat
+                  onSelectUser(user);
+                  setSearch('');
+                }}
               >
                 <div className="chat-item-avatar">
                   {user.photoURL
@@ -186,13 +213,21 @@ export default function Sidebar({ selectedUser, onSelectUser, isMobileVisible })
                     )}
                   </div>
                   <div className="chat-item-preview">
-                    {lastMsg
-                      ? lastMsg.senderId === currentUser.uid
-                        ? `You: ${lastMsg.text}`
-                        : lastMsg.text
-                      : user.status || 'Start a conversation'}
+                    {following
+                      ? (lastMsg
+                          ? lastMsg.senderId === currentUser.uid
+                            ? `You: ${lastMsg.text}`
+                            : lastMsg.text
+                          : user.status || 'Start a conversation')
+                      : (user.status || 'Follow to start chatting')}
                   </div>
                 </div>
+                <button
+                  className={`follow-btn ${following ? 'following' : ''}`}
+                  onClick={(e) => handleFollowToggle(e, user.uid, user.username)}
+                >
+                  {following ? 'Following' : 'Follow'}
+                </button>
               </div>
             );
           })}

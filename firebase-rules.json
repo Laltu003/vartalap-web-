@@ -1,19 +1,18 @@
 {
   "rules": {
     "usernames": {
-      ".read": true,
+      ".read": "true",
       "$username": {
         ".write": "auth != null"
       }
     },
     "users": {
-      ".read": "auth != null",
       "$uid": {
+        ".read": "auth != null",
         ".write": "auth != null && auth.uid === $uid"
       }
     },
     "chats": {
-      ".read": "auth != null && root.child('users').child(auth.uid).child('role').val() === 'admin'",
       "$chatId": {
         ".read": "auth != null && ($chatId.contains(auth.uid))",
         ".write": "auth != null && ($chatId.contains(auth.uid))"
@@ -21,47 +20,14 @@
     },
     "groups": {
       "$groupId": {
-        ".read": "auth != null && data.child('members').child(auth.uid).exists()",
-        ".write": "auth != null && (!data.exists() || data.child('members').child(auth.uid).exists())"
-      }
-    },
-    "groupMessages": {
-      "$groupId": {
-        ".read": "auth != null && root.child('groups').child($groupId).child('members').child(auth.uid).exists()",
-        ".write": "auth != null && root.child('groups').child($groupId).child('members').child(auth.uid).exists()"
-      }
-    },
-    "starred": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
-      }
-    },
-    "calls": {
-      "$callId": {
-        ".read": "auth != null && (data.child('callerId').val() === auth.uid || data.child('calleeId').val() === auth.uid)",
-        ".write": "auth != null && (!data.exists() || data.child('callerId').val() === auth.uid || data.child('calleeId').val() === auth.uid)"
-      }
-    },
-    "incomingCalls": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
+        ".read": "auth != null",
         ".write": "auth != null"
       }
     },
     "follows": {
       "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        "following": {
-          "$targetUid": {
-            ".write": "auth != null && auth.uid === $uid"
-          }
-        },
-        "followers": {
-          "$followerUid": {
-            ".write": "auth != null && auth.uid === $followerUid"
-          }
-        }
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $uid"
       }
     },
     "admin": {

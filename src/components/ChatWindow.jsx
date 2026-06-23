@@ -39,7 +39,7 @@ function AvatarFallback({ name, size = 36 }) {
 }
 
 export default function ChatWindow({ selectedUser, onBack, isMobileVisible }) {
-  const { currentUser, blockUser, unblockUser, isBlocked } = useAuth();
+  const { currentUser, blockUser, unblockUser, isBlocked, isFollowing } = useAuth();
   const { resolvedTheme } = useTheme();
   const { messages, loading, sendMessage } = useMessages(selectedUser?.uid);
   const [input, setInput] = useState('');
@@ -142,6 +142,10 @@ export default function ChatWindow({ selectedUser, onBack, isMobileVisible }) {
     const text = input.trim();
     if (!text && !pendingMedia) return;
     if (sending) return;
+    if (!isFollowing(selectedUser.uid)) {
+      toast.error('Follow this person to send messages.');
+      return;
+    }
     if (isBlocked(selectedUser.uid)) {
       toast.error('Unblock this contact to send messages.');
       return;
