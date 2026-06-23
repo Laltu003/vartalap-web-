@@ -195,16 +195,20 @@ export function AuthProvider({ children }) {
   }
 
   // ── Follow / Unfollow a user ─────────────────────────────
-  // Structure: follows/{myUid}/{targetUid} = true
+  // Structure matches deployed Firebase rules:
+  //   follows/{myUid}/following/{targetUid} = true
+  //   follows/{targetUid}/followers/{myUid} = true
   // Instagram-style — one-directional, no mutual approval needed.
   async function followUser(targetUid) {
     if (!currentUser) return;
-    await set(ref(db, `follows/${currentUser.uid}/${targetUid}`), true);
+    await set(ref(db, `follows/${currentUser.uid}/following/${targetUid}`), true);
+    await set(ref(db, `follows/${targetUid}/followers/${currentUser.uid}`), true);
   }
 
   async function unfollowUser(targetUid) {
     if (!currentUser) return;
-    await remove(ref(db, `follows/${currentUser.uid}/${targetUid}`));
+    await remove(ref(db, `follows/${currentUser.uid}/following/${targetUid}`));
+    await remove(ref(db, `follows/${targetUid}/followers/${currentUser.uid}`));
   }
 
   function isFollowing(targetUid) {
@@ -250,7 +254,7 @@ export function AuthProvider({ children }) {
           setUserProfile(snapshot.val());
         });
 
-        const followsRef = ref(db, `follows/${user.uid}`);
+        const followsRef = ref(db, `follows/${user.uid}/following`);
         onValue(followsRef, (snapshot) => {
           setMyFollowing(snapshot.val() || {});
         });
