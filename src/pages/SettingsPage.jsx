@@ -10,7 +10,7 @@ const errStyle = { style: { background: '#c0392b', color: '#fff', fontSize: '14p
 const USERNAME_REGEX = /^[a-zA-Z0-9_.]{3,20}$/;
 
 function AvatarFallback({ name, size = 80 }) {
-  const colors = ['#128C7E', '#075E54', '#25D366', '#0080A0', '#6B46C1'];
+  const colors = ['#6D28D9', '#4C1D95', '#8B5CF6', '#9333EA', '#A855F7'];
   const color = colors[(name?.charCodeAt(0) || 0) % colors.length];
   return (
     <div style={{

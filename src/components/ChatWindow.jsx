@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useMessages } from '../hooks/useChat';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 import { format, isToday, isYesterday, isSameDay } from 'date-fns';
 import EmojiPicker from 'emoji-picker-react';
 import toast from 'react-hot-toast';
@@ -23,7 +24,7 @@ function formatDateDivider(ts) {
 }
 
 function AvatarFallback({ name, size = 36 }) {
-  const colors = ['#128C7E', '#075E54', '#25D366', '#0080A0', '#6B46C1'];
+  const colors = ['#6D28D9', '#4C1D95', '#8B5CF6', '#9333EA', '#A855F7'];
   const color = colors[(name?.charCodeAt(0) || 0) % colors.length];
   return (
     <div style={{
@@ -39,6 +40,7 @@ function AvatarFallback({ name, size = 36 }) {
 
 export default function ChatWindow({ selectedUser, onBack, isMobileVisible }) {
   const { currentUser, blockUser, unblockUser, isBlocked } = useAuth();
+  const { resolvedTheme } = useTheme();
   const { messages, loading, sendMessage } = useMessages(selectedUser?.uid);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -361,6 +363,7 @@ export default function ChatWindow({ selectedUser, onBack, isMobileVisible }) {
                 lazyLoadEmojis
                 height={350}
                 width={300}
+                theme={resolvedTheme}
               />
             </div>
           )}

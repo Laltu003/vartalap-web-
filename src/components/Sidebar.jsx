@@ -16,7 +16,7 @@ function formatTime(ts) {
 }
 
 function AvatarFallback({ name, size = 46 }) {
-  const colors = ['#128C7E', '#075E54', '#25D366', '#0080A0', '#6B46C1'];
+  const colors = ['#6D28D9', '#4C1D95', '#8B5CF6', '#9333EA', '#A855F7'];
   const color = colors[(name?.charCodeAt(0) || 0) % colors.length];
   return (
     <div style={{

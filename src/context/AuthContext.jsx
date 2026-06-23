@@ -35,7 +35,7 @@ export function AuthProvider({ children }) {
     const result = await createUserWithEmailAndPassword(auth, email, password);
     const user = result.user;
 
-    let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=128C7E&color=fff&size=200`;
+    let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(username)}&background=6D28D9&color=fff&size=200`;
 
     if (avatarFile) {
       const { url } = await uploadToCloudinary(avatarFile);

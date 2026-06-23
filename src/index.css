@@ -10,37 +10,37 @@
 }
 
 :root {
-  /* Brand Colors */
-  --teal-900: #075E54;
-  --teal-700: #128C7E;
-  --teal-500: #25D366;
-  --teal-light: #DCF8C6;
+  /* Brand Colors — Purple/Lavender */
+  --teal-900: #4C1D95;   /* deep purple — headers, primary actions */
+  --teal-700: #6D28D9;   /* main purple — buttons, links, accents */
+  --teal-500: #8B5CF6;   /* lighter purple — highlights */
+  --teal-light: #EDE4FF; /* pale lavender — sent message bubbles */
 
   /* Neutrals */
   --white: #FFFFFF;
-  --bg-main: #F0F2F5;
+  --bg-main: #F5F2FF;     /* faint lavender page background */
   --bg-panel: #FFFFFF;
-  --bg-chat: #E5DDD5;
+  --bg-chat: #EDE7F6;     /* lavender chat wallpaper */
   --sidebar-bg: #FFFFFF;
-  --header-bg: #F0F2F5;
+  --header-bg: #F5F2FF;
 
   /* Text */
-  --text-primary: #111B21;
-  --text-secondary: #667781;
-  --text-muted: #8696A0;
+  --text-primary: #2E1A47;
+  --text-secondary: #6B5B7B;
+  --text-muted: #9B8BAE;
 
   /* Borders */
-  --border: #E9EDEF;
-  --border-light: #F0F2F5;
+  --border: #E5DBF7;
+  --border-light: #F0EAFB;
 
   /* Messages */
-  --msg-sent: #D9FDD3;
-  --msg-sent-border: #C5E8BA;
+  --msg-sent: #EDE4FF;
+  --msg-sent-border: #D9C7F5;
   --msg-received: #FFFFFF;
-  --msg-received-border: #E9EDEF;
+  --msg-received-border: #E5DBF7;
 
   /* States */
-  --online: #25D366;
+  --online: #22C55E;
   --error: #E53935;
   --warning: #F57C00;
 
@@ -74,24 +74,24 @@
    DARK THEME — overrides applied via [data-theme="dark"]
    ══════════════════════════════════════════════════════════ */
 [data-theme="dark"] {
-  --white: #202C33;
-  --bg-main: #111B21;
-  --bg-panel: #111B21;
-  --bg-chat: #0B141A;
-  --sidebar-bg: #111B21;
-  --header-bg: #202C33;
+  --white: #251A38;       /* deep purple-grey surfaces */
+  --bg-main: #15101F;     /* near-black with purple tint */
+  --bg-panel: #15101F;
+  --bg-chat: #0F0B17;
+  --sidebar-bg: #15101F;
+  --header-bg: #251A38;
 
-  --text-primary: #E9EDEF;
-  --text-secondary: #8696A0;
-  --text-muted: #667781;
+  --text-primary: #EDE4FF;
+  --text-secondary: #B8A8D1;
+  --text-muted: #8A7A9F;
 
-  --border: #2A3942;
-  --border-light: #222D34;
+  --border: #3A2B52;
+  --border-light: #2D2140;
 
-  --msg-sent: #005C4B;
-  --msg-sent-border: #014B3F;
-  --msg-received: #202C33;
-  --msg-received-border: #2A3942;
+  --msg-sent: #5B21B6;
+  --msg-sent-border: #6D28D9;
+  --msg-received: #251A38;
+  --msg-received-border: #3A2B52;
 
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.4);
   --shadow-md: 0 2px 8px rgba(0,0,0,0.5);
@@ -189,7 +189,7 @@ input, textarea, button {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-700) 50%, #1a9a8a 100%);
+  background: linear-gradient(135deg, var(--teal-900) 0%, var(--teal-700) 50%, #A78BFA 100%);
   padding: 20px;
 }
 
@@ -1219,7 +1219,7 @@ input, textarea, button {
 }
 
 /* ── Toast override ── */
-.toast-success { background: #1a7a6e !important; }
+.toast-success { background: #6D28D9 !important; }
 
 /* ══════════════════════════════════════════════════════════
    Auth Tabs  (Email / Phone switcher)

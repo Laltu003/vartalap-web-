@@ -180,7 +180,7 @@ export async function createGroup({ name, photoFile, memberUids, currentUserUid 
   const newGroupRef = push(ref(db, 'groups'));
   const groupId = newGroupRef.key;
 
-  let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=075E54&color=fff&size=200`;
+  let photoURL = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=4C1D95&color=fff&size=200`;
   if (photoFile) {
     const { url } = await uploadToCloudinary(photoFile);
     photoURL = url;
