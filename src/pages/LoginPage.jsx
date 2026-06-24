@@ -20,6 +20,7 @@ export default function LoginPage() {
   const [otpError, setOtpError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [debugError, setDebugError] = useState(null);
 
   function validate() {
     const e = {};
@@ -49,10 +50,17 @@ export default function LoginPage() {
       setTimeout(() => otpRefs.current[0]?.focus(), 200);
     } catch (err) {
       console.error(err);
+      const fullDump = {
+        code: err?.code,
+        message: err?.message,
+        name: err?.name,
+        stringified: (() => { try { return JSON.stringify(err); } catch { return 'unstringifiable'; } })(),
+      };
+      setDebugError(fullDump);
       if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential'].includes(err.code)) {
         setErrors({ password: 'Invalid username or password' });
       } else {
-        toast.error('Login failed. Try again.', errStyle);
+        toast.error('Login failed — see details below', errStyle);
       }
     } finally { setLoading(false); }
   }
@@ -172,6 +180,27 @@ export default function LoginPage() {
                 {loading ? 'Verifying…' : 'Continue'}
               </button>
             </form>
+
+            {debugError && (
+              <div style={{
+                marginTop: 16,
+                padding: 12,
+                background: '#2a1515',
+                border: '1px solid #c0392b',
+                borderRadius: 8,
+                fontSize: 11,
+                color: '#ffcccc',
+                wordBreak: 'break-word',
+                whiteSpace: 'pre-wrap',
+                maxHeight: 300,
+                overflowY: 'auto',
+              }}>
+                <strong style={{ color: '#fff', display: 'block', marginBottom: 6 }}>
+                  Debug — full error details:
+                </strong>
+                {JSON.stringify(debugError, null, 2)}
+              </div>
+            )}
           </>
         ) : (
           <>
