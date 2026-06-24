@@ -45,10 +45,14 @@ export function AuthProvider({ children }) {
 
     await updateProfile(user, { displayName: username, photoURL });
 
-    // Reserve the username (acts as the unique-index table)
+    // Reserve the username (acts as the unique-index table).
+    // Email is duplicated here (not just in users/{uid}) because the
+    // login flow needs to resolve username -> email BEFORE the user is
+    // authenticated, and users/{uid} requires auth != null to read.
     await set(ref(db, `usernames/${usernameKey}`), {
       uid: user.uid,
       username, // original casing preserved for display
+      email,
     });
 
     await set(ref(db, `users/${user.uid}`), {
@@ -74,13 +78,10 @@ export function AuthProvider({ children }) {
     if (!indexSnap.exists()) {
       throw { code: 'auth/user-not-found', message: 'No account with that username' };
     }
-    const { uid } = indexSnap.val();
-
-    const userSnap = await get(ref(db, `users/${uid}`));
-    if (!userSnap.exists() || !userSnap.val().email) {
+    const { email } = indexSnap.val();
+    if (!email) {
       throw { code: 'auth/user-not-found', message: 'Account data missing' };
     }
-    const email = userSnap.val().email;
 
     const result = await signInWithEmailAndPassword(auth, email, password);
     await update(ref(db, `users/${result.user.uid}`), {
@@ -99,13 +100,10 @@ export function AuthProvider({ children }) {
     if (!indexSnap.exists()) {
       throw { code: 'auth/user-not-found', message: 'No account with that username' };
     }
-    const { uid } = indexSnap.val();
-
-    const userSnap = await get(ref(db, `users/${uid}`));
-    if (!userSnap.exists() || !userSnap.val().email) {
+    const { email } = indexSnap.val();
+    if (!email) {
       throw { code: 'auth/user-not-found', message: 'Account data missing' };
     }
-    const email = userSnap.val().email;
 
     // Sign in just to validate the password, then immediately sign out.
     await signInWithEmailAndPassword(auth, email, password);
@@ -120,9 +118,7 @@ export function AuthProvider({ children }) {
     const usernameKey = normalizeUsername(username);
     const indexSnap = await get(ref(db, `usernames/${usernameKey}`));
     if (!indexSnap.exists()) return null;
-    const { uid } = indexSnap.val();
-    const userSnap = await get(ref(db, `users/${uid}`));
-    return userSnap.exists() ? userSnap.val().email : null;
+    return indexSnap.val().email || null;
   }
 
   // Logout
