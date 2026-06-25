@@ -57,6 +57,7 @@ export default function LoginPage() {
         stringified: (() => { try { return JSON.stringify(err); } catch { return 'unstringifiable'; } })(),
       };
       setDebugError(fullDump);
+      alert('LOGIN ERROR:\n' + JSON.stringify(fullDump, null, 2));
       if (['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential'].includes(err.code)) {
         setErrors({ password: 'Invalid username or password' });
       } else {
