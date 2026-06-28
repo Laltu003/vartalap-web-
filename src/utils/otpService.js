@@ -76,15 +76,26 @@ export async function sendOtpEmail(toEmail, toName = '') {
     app_name: 'VartaLap',
   };
 
-  try {
-    await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
-  } catch (err) {
-    // Surface the real EmailJS error payload (it's often nested in err.text)
-    console.error('EmailJS send failed:', err);
-    throw err;
+  // EmailJS occasionally has brief infrastructure hiccups (e.g. their own
+  // database capacity incidents) that surface as transient errors like
+  // "template not found" even when the template genuinely exists. A short
+  // automatic retry smooths over these without bothering the user.
+  const MAX_ATTEMPTS = 3;
+  let lastErr;
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams);
+      return true;
+    } catch (err) {
+      lastErr = err;
+      console.error(`EmailJS send failed (attempt ${attempt}/${MAX_ATTEMPTS}):`, err);
+      if (attempt < MAX_ATTEMPTS) {
+        await new Promise(r => setTimeout(r, 1200 * attempt)); // 1.2s, then 2.4s
+      }
+    }
   }
 
-  return true;
+  throw lastErr;
 }
 
 export function verifyOtp(email, inputOtp) {
