@@ -106,20 +106,17 @@ export function useMessages(chatPartnerId) {
     // Push to the shared chatId room (sorted so both users share same room)
     await push(ref(db, `chats/${chatId}/messages`), msg);
 
-    // Update last message preview for both users' chat lists
+    // Store last-message preview under the SHARED chat room — not under
+    // users/{otherUid}/chats/{myUid}, since Firebase Rules only allow a
+    // user to write to their own users/{uid} subtree, not someone else's.
     const previewText = media
       ? (media.type === 'image' ? '📷 Photo' : media.type === 'video' ? '🎥 Video' : `📄 ${media.file.name}`)
       : trimmedText;
 
-    const lastMsgData = {
+    await update(ref(db, `chats/${chatId}`), {
       lastMessage: previewText,
       lastMessageTime: Date.now(),
       lastMessageSender: currentUser.uid,
-    };
-    await update(ref(db, `users/${currentUser.uid}/chats/${chatPartnerId}`), lastMsgData);
-    await update(ref(db, `users/${chatPartnerId}/chats/${currentUser.uid}`), {
-      ...lastMsgData,
-      unread: true,
     });
   }, [chatId, currentUser, chatPartnerId]);
 
