@@ -6,7 +6,7 @@
 
 // 🔧 REPLACE THESE with your EmailJS credentials
 const EMAILJS_SERVICE_ID  = 'service_835k5l3';
-const EMAILJS_TEMPLATE_ID = 'template_ywob9iv';
+const EMAILJS_TEMPLATE_ID = 'template_06zy16e';
 const EMAILJS_PUBLIC_KEY  = 'di9KeRD5MCZIEOy0u';
 
 const OTP_EXPIRY_MS = 5 * 60 * 1000; // 5 minutes
