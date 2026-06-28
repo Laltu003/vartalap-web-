@@ -94,6 +94,13 @@ export function AuthProvider({ children }) {
   // Verifies username+password are correct WITHOUT leaving the user signed in.
   // Used before OTP is sent on login, so a session only persists once OTP
   // is actually verified (prevents bypassing 2FA by closing the OTP screen).
+  //
+  // IMPORTANT: this calls Firebase's REST auth endpoint directly instead of
+  // signInWithEmailAndPassword() + signOut(). Using the SDK's sign-in method
+  // here — even briefly — fires onAuthStateChanged with a real user, which
+  // causes PublicRoute to redirect away from /login before the OTP step can
+  // render (since currentUser briefly becomes truthy). The REST call checks
+  // the password without ever touching the SDK's auth state.
   async function verifyCredentialsOnly(username, password) {
     const usernameKey = normalizeUsername(username);
     const indexSnap = await get(ref(db, `usernames/${usernameKey}`));
@@ -105,9 +112,24 @@ export function AuthProvider({ children }) {
       throw { code: 'auth/user-not-found', message: 'Account data missing' };
     }
 
-    // Sign in just to validate the password, then immediately sign out.
-    await signInWithEmailAndPassword(auth, email, password);
-    await signOut(auth);
+    const apiKey = auth.app.options.apiKey;
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, returnSecureToken: false }),
+      }
+    );
+
+    if (!res.ok) {
+      const errBody = await res.json().catch(() => ({}));
+      const reason = errBody?.error?.message || '';
+      if (reason.includes('INVALID_PASSWORD') || reason.includes('INVALID_LOGIN_CREDENTIALS') || reason.includes('EMAIL_NOT_FOUND')) {
+        throw { code: 'auth/invalid-credential', message: 'Invalid username or password' };
+      }
+      throw { code: 'auth/unknown', message: reason || 'Login check failed' };
+    }
 
     return { email };
   }
